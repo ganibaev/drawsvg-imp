@@ -45,9 +45,9 @@ void SoftwareRendererImp::set_sample_rate(size_t sample_rate) {
     // Task 4: 
     // You may want to modify this for supersampling support
     this->sample_rate = sample_rate;
-	sample_h = target_h * sample_rate;
-	sample_w = target_w * sample_rate;
-	sample_buffer.resize(4 * sample_h * sample_w);
+    sample_h = target_h * sample_rate;
+    sample_w = target_w * sample_rate;
+    sample_buffer.resize(4 * sample_h * sample_w);
 
 }
 
@@ -58,10 +58,10 @@ void SoftwareRendererImp::set_render_target(unsigned char* render_target, size_t
     this->render_target = render_target;
     this->target_w = width;
     this->target_h = height;
-	this->sample_rate = 1;
-	sample_h = target_h * sample_rate;
-	sample_w = target_w * sample_rate;
-	sample_buffer.resize(4 * sample_h * sample_w);
+    this->sample_rate = 1;
+    sample_h = target_h * sample_rate;
+    sample_w = target_w * sample_rate;
+    sample_buffer.resize(4 * sample_h * sample_w);
 }
 
 void SoftwareRendererImp::draw_element(SVGElement* element) {
@@ -71,35 +71,35 @@ void SoftwareRendererImp::draw_element(SVGElement* element) {
     auto temp = transformation;
     transformation = transformation * element->transform;
 
-	switch (element->type) {
-	case POINT:
-		draw_point(static_cast<Point&>(*element));
-		break;
-	case LINE:
-		draw_line(static_cast<Line&>(*element));
-		break;
-	case POLYLINE:
-		draw_polyline(static_cast<Polyline&>(*element));
-		break;
-	case RECT:
-		draw_rect(static_cast<Rect&>(*element));
-		break;
-	case POLYGON:
-		draw_polygon(static_cast<Polygon&>(*element));
-		break;
-	case ELLIPSE:
-		draw_ellipse(static_cast<Ellipse&>(*element));
-		break;
-	case IMAGE:
-		draw_image(static_cast<Image&>(*element));
-		break;
-	case GROUP:
-		draw_group(static_cast<Group&>(*element));
-		break;
-	default:
-		break;
-	}
-    transformation = temp;
+    switch (element->type) {
+    case POINT:
+      draw_point(static_cast<Point&>(*element));
+      break;
+    case LINE:
+      draw_line(static_cast<Line&>(*element));
+      break;
+    case POLYLINE:
+      draw_polyline(static_cast<Polyline&>(*element));
+      break;
+    case RECT:
+      draw_rect(static_cast<Rect&>(*element));
+      break;
+    case POLYGON:
+      draw_polygon(static_cast<Polygon&>(*element));
+      break;
+    case ELLIPSE:
+      draw_ellipse(static_cast<Ellipse&>(*element));
+      break;
+    case IMAGE:
+      draw_image(static_cast<Image&>(*element));
+      break;
+    case GROUP:
+      draw_group(static_cast<Group&>(*element));
+      break;
+    default:
+      break;
+    }
+      transformation = temp;
 }
 
 
@@ -324,11 +324,11 @@ void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
     // Task 3: 
     // Implement triangle rasterization
     int sx2 = (int)std::floor(x2);
-	int sx1 = (int)std::floor(x1);
-	int sx0 = (int)std::floor(x0);
+    int sx1 = (int)std::floor(x1);
+    int sx0 = (int)std::floor(x0);
     int sy2 = (int)std::floor(y2);
-	int sy1 = (int)std::floor(y1);
-	int sy0 = (int)std::floor(y0);
+    int sy1 = (int)std::floor(y1);
+    int sy0 = (int)std::floor(y0);
 
     // Bounding box
     int x_min = std::min({ sx0, sx1, sx2 }) - 1;
