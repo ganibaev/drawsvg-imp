@@ -4,6 +4,8 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <thread>
+#include <chrono>
 
 #include "triangulation.h"
 
@@ -377,6 +379,34 @@ void SoftwareRendererImp::rasterize_image( float x0, float y0,
 
 }
 
+void SoftwareRendererImp::sample_pixel(size_t start, size_t num_workers) {
+    for (size_t i = start; i < target_h * target_w; i += num_workers) {
+        size_t sampled_size = sample_rate * sample_rate;
+        size_t x = i % target_w;
+        size_t y = i / target_w;
+        size_t sx = sample_rate * x;
+        size_t sy = sample_rate * y;
+        Color fill_color;
+        fill_color.r = 0.0f;
+        fill_color.g = 0.0f;
+        fill_color.b = 0.0f;
+        fill_color.a = 0.0f;
+        for (size_t by = 0; by < sample_rate; ++by) {
+            for (size_t bx = 0; bx < sample_rate; ++bx) {
+                fill_color.r += (static_cast<float>(sample_buffer[4 * (sx + bx + (sy + by) * sample_w)]) / 255.0f);
+                fill_color.g += (static_cast<float>(sample_buffer[4 * (sx + bx + (sy + by) * sample_w) + 1]) / 255.0f);
+                fill_color.b += (static_cast<float>(sample_buffer[4 * (sx + bx + (sy + by) * sample_w) + 2]) / 255.0f);
+                fill_color.a += (static_cast<float>(sample_buffer[4 * (sx + bx + (sy + by) * sample_w) + 3]) / 255.0f);
+            }
+        }
+        fill_color.r /= static_cast<float>(sampled_size);
+        fill_color.g /= static_cast<float>(sampled_size);
+        fill_color.b /= static_cast<float>(sampled_size);
+        fill_color.a /= static_cast<float>(sampled_size);
+        fill_pixel(x, y, fill_color);
+    }
+}
+
 // resolve samples to render target
 void SoftwareRendererImp::resolve( void ) {
 
@@ -387,31 +417,20 @@ void SoftwareRendererImp::resolve( void ) {
         memset(sample_buffer.data(), 255, 4 * sample_w * sample_h);
         return;
     }
+    int num_threads = std::thread::hardware_concurrency();
     size_t sampled_size = sample_rate * sample_rate;
-    for (size_t y = 0; y < target_h; ++y) {
-        for (size_t x = 0; x < target_w; ++x) {
-            size_t sx = sample_rate * x;
-            size_t sy = sample_rate * y;
-			Color fill_color;
-			fill_color.r = 0.0f;
-			fill_color.g = 0.0f;
-			fill_color.b = 0.0f;
-			fill_color.a = 0.0f;
-            for (size_t by = 0; by < sample_rate; ++by) {
-                for (size_t bx = 0; bx < sample_rate; ++bx) {
-                    fill_color.r += (static_cast<float>(sample_buffer[4 * (sx + bx + (sy + by) * sample_w)]) / 255.0f);
-                    fill_color.g += (static_cast<float>(sample_buffer[4 * (sx + bx + (sy + by) * sample_w) + 1]) / 255.0f);
-					fill_color.b += (static_cast<float>(sample_buffer[4 * (sx + bx + (sy + by) * sample_w) + 2]) / 255.0f);
-					fill_color.a += (static_cast<float>(sample_buffer[4 * (sx + bx + (sy + by) * sample_w) + 3]) / 255.0f);
-                }
-            }
-            fill_color.r /= static_cast<float>(sampled_size);
-            fill_color.g /= static_cast<float>(sampled_size);
-            fill_color.b /= static_cast<float>(sampled_size);
-            fill_color.a /= static_cast<float>(sampled_size);
-            fill_pixel(x, y, fill_color);
-        }
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    start = std::chrono::system_clock::now();
+    std::vector<std::thread> workers;
+    for (size_t id = 0; id < num_threads; ++id) {
+        workers.emplace_back(&CMU462::SoftwareRendererImp::sample_pixel, this, id, num_threads);
     }
+    for (auto& thread : workers) {
+        thread.join();
+    }
+    end = std::chrono::system_clock::now();
+    std::chrono::duration<double, std::milli> elapsed_time = end - start;
+    std::cout << elapsed_time.count() << std::endl;
     memset(sample_buffer.data(), 255, 4 * sample_w * sample_h);
 }
 

@@ -132,6 +132,7 @@ public:
                         Texture& tex );
 
     // resolve samples to render target
+    void sample_pixel(size_t start, size_t num_workers);
     void resolve( void );
 
     // Supersampling helpers
