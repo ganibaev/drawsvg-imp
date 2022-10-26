@@ -419,8 +419,8 @@ void SoftwareRendererImp::resolve( void ) {
     }
     int num_threads = std::thread::hardware_concurrency();
     size_t sampled_size = sample_rate * sample_rate;
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    start = std::chrono::system_clock::now();
+    // std::chrono::time_point<std::chrono::system_clock> start, end;
+    // start = std::chrono::system_clock::now();
     std::vector<std::thread> workers;
     for (size_t id = 0; id < num_threads; ++id) {
         workers.emplace_back(&CMU462::SoftwareRendererImp::sample_pixel, this, id, num_threads);
@@ -428,9 +428,9 @@ void SoftwareRendererImp::resolve( void ) {
     for (auto& thread : workers) {
         thread.join();
     }
-    end = std::chrono::system_clock::now();
-    std::chrono::duration<double, std::milli> elapsed_time = end - start;
-    std::cout << elapsed_time.count() << std::endl;
+    // end = std::chrono::system_clock::now();
+    // std::chrono::duration<double, std::milli> elapsed_time = end - start;
+    // std::cout << elapsed_time.count() << std::endl;
     memset(sample_buffer.data(), 255, 4 * sample_w * sample_h);
 }
 
