@@ -10,6 +10,8 @@ Features implemented by me:
 4. Multithreaded supersampling
 5. Modeling and viewing transforms
 
+Below are build and view instructions from the original assignment.
+
 ### Build Instructions
 
 In order to ease the process of running on different platforms, we will be using [CMake](http://www.cmake.org/) for our assignments. You will need a CMake installation of version 2.8+ to build the code for this assignment. It should also be relatively easy to build the assignment and work locally on Windows, OSX or 64-bit version of Linux. Building on ARM (e.g. Raspberry Pi, some Chromebooks) is currently not supported.
